@@ -1,7 +1,9 @@
 import 'package:admin_pannel/controller/beat_controller.dart';
+import 'package:admin_pannel/view/beat_page/widget/paid_beat.dart';
+import 'package:admin_pannel/widget/custom_button.dart';
+import 'package:admin_pannel/widget/sucess_message.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:get/instance_manager.dart';
+import 'package:get/get.dart';
 
 class AddFreebeat extends StatelessWidget {
   const AddFreebeat({super.key});
@@ -10,56 +12,66 @@ class AddFreebeat extends StatelessWidget {
   Widget build(BuildContext context) {
     final beatName = TextEditingController();
     final producerName = TextEditingController();
-    final controller = Get.put(BeatController());
+    final controller = Get.find<BeatController>();
+    final formKey = GlobalKey<FormState>();
     return Scaffold(
-      backgroundColor: Colors.grey[200],
       body: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Material(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextFormField(
-                    controller: beatName,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: "Beat Name",
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12), color: Colors.white),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        customField(
+                            hintText: "Beat Name", controller: beatName),
+                        const SizedBox(height: 20),
+                        customField(
+                            hintText: "Producername", controller: producerName),
+                        const SizedBox(height: 30),
+                        Obx(() => InkWell(
+                            onTap: () {
+                              if (formKey.currentState!.validate()) {
+                                controller.uploadBeat(
+                                    beatName.text, producerName.text, () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return SizedBox(
+                                        height: 200,
+                                        child: SucessMessage(
+                                            message:
+                                                "Beat Uploaded Sucessfully",
+                                            onpressed: () {
+                                              Get.back();
+                                            },
+                                            buttonlabel: "Ok"),
+                                      );
+                                    },
+                                  );
+                                });
+                              }
+                            },
+                            child: CustomButton(
+                                isloading: controller.isloading.value,
+                                label: "Upload")))
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    controller: producerName,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: "Producer Name",
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  Obx(() => InkWell(
-                        onTap: () {
-                          controller.uploadBeat(
-                              beatName.text, producerName.text, context);
-                        },
-                        child: Container(
-                          width: double.maxFinite,
-                          decoration: const BoxDecoration(
-                            color: Colors.blue,
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 16),
-                          child: Center(
-                              child: controller.isloading.value
-                                  ? const CircularProgressIndicator()
-                                  : const Text("Upload Beat")),
-                        ),
-                      ))
-                ],
-              ),
-            ),
-          )),
+                )),
+          ],
+        ),
+      ),
     );
   }
 }

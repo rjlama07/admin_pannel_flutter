@@ -1,11 +1,16 @@
 import 'package:admin_pannel/constants/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
 import 'package:get/state_manager.dart';
 
 class BeatController extends GetxController {
   RxBool isloading = false.obs;
+  RxBool ispaidBeatLoading = false.obs;
+  RxBool isUploading = false.obs;
+  RxBool isfullBeatUploading = false.obs;
+
+  RxString sampleBeat = "".obs;
+  RxString fullBeat = "".obs;
 
   Future<String?> pickAndGetFormData() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
@@ -23,17 +28,15 @@ class BeatController extends GetxController {
       try {
         Dio dio = Dio();
         Response response = await dio.post(url, data: formData);
-        print("Upload response: ${response.data}");
         return (response.data)["beatUrl"];
       } catch (error) {
-        print("Upload error: $error");
         return null;
       }
     }
   }
 
   Future<void> uploadBeat(
-      String beatName, String producerName, BuildContext context) async {
+      String beatName, String producerName, Function onsucess) async {
     isloading.value = true;
     String? beatLink = await pickAndGetFormData();
     if (beatLink != null) {
@@ -43,15 +46,27 @@ class BeatController extends GetxController {
         "beatUrl": beatLink,
       };
       await Dio().post(uploadBeatUrl, data: data);
+      onsucess();
       isloading.value = false;
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Photo Uoloaded")));
     } else {
       // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Beat not uploaded")));
       isloading.value = false;
     }
+  }
+
+  Future<void> uploadPaidBeat(String beatName, String price,
+      String producerName, Function onsucess) async {
+    ispaidBeatLoading.value = true;
+
+    final data = {
+      "beatName": beatName,
+      "producerName": producerName,
+      "beatUrl": fullBeat.value,
+      "price": price,
+      "sampleUrl": sampleBeat.value,
+    };
+    await Dio().post(uploadPaidBeatUrl, data: data);
+    onsucess();
+    ispaidBeatLoading.value = false;
   }
 }
