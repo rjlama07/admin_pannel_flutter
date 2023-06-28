@@ -1,6 +1,7 @@
 import 'package:admin_pannel/constants/constants.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
 import 'package:get/state_manager.dart';
 
 class BeatController extends GetxController {
@@ -8,28 +9,39 @@ class BeatController extends GetxController {
   RxBool ispaidBeatLoading = false.obs;
   RxBool isUploading = false.obs;
   RxBool isfullBeatUploading = false.obs;
+  RxBool isImageUplaoding = false.obs;
+  RxString imageUrl = "".obs;
 
   RxString sampleBeat = "".obs;
   RxString fullBeat = "".obs;
 
-  Future<String?> pickAndGetFormData() async {
+  Future<String?> pickAndGetFormData({
+    bool isImage = false,
+  }) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 
     if (result != null) {
       List<int> bytes = result.files.single.bytes!;
       String fileName = result.files.single.name;
 
-      String url = postBeat;
+      String url = isImage ? uploadImage : postBeat;
+
+      String keyValue = isImage ? "image" : "beats";
 
       FormData formData = FormData.fromMap({
-        "beats": MultipartFile.fromBytes(bytes, filename: fileName),
+        keyValue: MultipartFile.fromBytes(bytes, filename: fileName),
       });
 
       try {
         Dio dio = Dio();
         Response response = await dio.post(url, data: formData);
-        return (response.data)["beatUrl"];
+        if (!isImage) {
+          return (response.data)["beatUrl"];
+        } else {
+          return (response.data)["imageUrl"];
+        }
       } catch (error) {
+        print(error);
         return null;
       }
     }

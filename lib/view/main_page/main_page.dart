@@ -10,40 +10,57 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(NavController());
+    final isMobileView = MediaQuery.of(context).size.width < 768;
     return Scaffold(
+      bottomNavigationBar: isMobileView
+          ? Obx(() => BottomNavigationBar(
+              onTap: (value) {
+                controller.selectedIndex.value = value;
+              },
+              currentIndex: controller.selectedIndex.value,
+              items: controller.navbarItems
+                  .map((e) => BottomNavigationBarItem(
+                      icon: Icon(e.icon), label: e.lable))
+                  .toList()))
+          : null,
       body: Row(
         children: [
-          Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.height * 0.35,
-            color: primaryColor,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  Container(
-                    height: 150,
-                    width: 200,
-                    decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                            image: AssetImage("assets/images/logo.png"))),
-                  ),
-                  const SizedBox(height: 50),
-                  Expanded(
-                      child: Obx(
-                    () => ListView(
-                      children: controller.navbarItems
-                          .map((e) => sideBarItem(
-                              e, controller.navbarItems.indexOf(e), controller))
-                          .toList(),
+          isMobileView
+              ? const SizedBox()
+              : Container(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.height * 0.35,
+                  color: primaryColor,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 20),
+                        Container(
+                          height: 150,
+                          width: 200,
+                          decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                  image: AssetImage("assets/images/logo.png"))),
+                        ),
+                        const SizedBox(height: 50),
+                        Expanded(
+                            child: Obx(
+                          () => ListView(
+                            children: controller.navbarItems
+                                .map((e) => sideBarItem(
+                                    e,
+                                    controller.navbarItems.indexOf(e),
+                                    controller))
+                                .toList(),
+                          ),
+                        ))
+                      ],
                     ),
-                  ))
-                ],
-              ),
-            ),
-          ),
+                  ),
+                ),
           Expanded(
               child: Obx(() => IndexedStack(
                     index: controller.selectedIndex.value,

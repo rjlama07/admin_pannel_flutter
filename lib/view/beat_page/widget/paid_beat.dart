@@ -114,7 +114,7 @@ class PaidBeats extends StatelessWidget {
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                  content: Text("Plese upload beats")));
+                                  content: Text("Plese Upload beats")));
                         }
                       }
                     },
