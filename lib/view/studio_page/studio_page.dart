@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../widget/hearder.dart';
+import '../../widget/sucess_message.dart';
 import '../beat_page/widget/paid_beat.dart';
 
 class StudioPage extends StatelessWidget {
   const StudioPage({super.key});
-
+  static final formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     final nameController = TextEditingController();
@@ -33,51 +34,86 @@ class StudioPage extends StatelessWidget {
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    customField(
-                        hintText: "Studio name", controller: nameController),
-                    customField(
-                        hintText: "Description",
-                        controller: descriptionController),
-                    customField(
-                      hintText: "Price",
-                      controller: priceController,
-                      validator: (p0) {
-                        try {
-                          double.parse(p0.toString());
-                        } catch (e) {
-                          return "Enter a valid price";
-                        }
-                      },
-                    ),
-                    customField(
-                        hintText: "Location", controller: locationController),
-                    const SizedBox(height: 20),
-                    InkWell(
-                        onTap: () async {
-                          controller.isImageUplaoding.value = true;
-                          String? image = await controller.pickAndGetFormData(
-                              isImage: true);
-                          controller.isImageUplaoding.value = false;
-                          if (image != null) {
-                            controller.imageUrl.value = image;
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      customField(
+                          hintText: "Studio name", controller: nameController),
+                      customField(
+                          hintText: "Description",
+                          controller: descriptionController),
+                      customField(
+                        hintText: "Price",
+                        controller: priceController,
+                        validator: (p0) {
+                          try {
+                            double.parse(p0.toString());
+                          } catch (e) {
+                            return "Enter a valid price";
                           }
-                          // }
                         },
-                        child: Obx(() => Upload_button(
-                            color: controller.isImageUplaoding.value
-                                ? Colors.grey[200]
-                                : null,
-                            text: controller.isImageUplaoding.value
-                                ? "Uploading..."
-                                : controller.imageUrl.value == ""
-                                    ? "Upload image"
-                                    : "Uploaded"))),
-                    const SizedBox(height: 20),
-                    const CustomButton(isloading: false, label: "Add Studio")
-                  ],
+                      ),
+                      customField(
+                          hintText: "Location", controller: locationController),
+                      const SizedBox(height: 20),
+                      InkWell(
+                          onTap: () async {
+                            controller.isImageUplaoding.value = true;
+                            String? image = await controller.pickAndGetFormData(
+                                isImage: true);
+                            controller.isImageUplaoding.value = false;
+                            if (image != null) {
+                              controller.imageUrl.value = image;
+                            }
+                            // }
+                          },
+                          child: Obx(() => Upload_button(
+                              color: controller.isImageUplaoding.value
+                                  ? Colors.grey[200]
+                                  : null,
+                              text: controller.isImageUplaoding.value
+                                  ? "Uploading..."
+                                  : controller.imageUrl.value == ""
+                                      ? "Upload image"
+                                      : "Uploaded"))),
+                      const SizedBox(height: 20),
+                      Obx(() => InkWell(
+                          onTap: () {
+                            if (formKey.currentState!.validate()) {
+                              if (controller.imageUrl.value != "") {
+                                studioController.addStudio(nameController.text,
+                                    descriptionController.text, () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return SucessMessage(
+                                          message:
+                                              "Studio Uploaded Sucessfully",
+                                          onpressed: () {
+                                            controller.imageUrl.value = "";
+                                            Get.back();
+                                          },
+                                          buttonlabel: "Ok");
+                                    },
+                                  );
+                                },
+                                    priceController.text,
+                                    locationController.text,
+                                    controller.imageUrl.value);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text("Plese Upload image")));
+                              }
+                            }
+                          },
+                          child: CustomButton(
+                              isloading: studioController.isloading.value,
+                              label: "Add Studio")))
+                    ],
+                  ),
                 ),
               ),
             ),
