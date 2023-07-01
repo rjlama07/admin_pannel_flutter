@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class AppHeader extends StatelessWidget {
-  const AppHeader({super.key, required this.title});
+  const AppHeader({super.key, required this.title, this.size = 30});
   final String title;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +12,7 @@ class AppHeader extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: size, fontWeight: FontWeight.bold),
         ),
       ],
     );

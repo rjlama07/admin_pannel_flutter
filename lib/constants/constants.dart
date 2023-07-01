@@ -7,3 +7,4 @@ String uploadBeatUrl = "${baseURl}upload/uploadBeat";
 String uploadPaidBeatUrl = "${baseURl}upload/postPaidBeat";
 String uploadImage = "${baseURl}upload/uploadImage";
 String addStudioUrl = "${baseURl}upload/addStudio";
+String addProduerUrl = "${baseURl}producer/addProducer";

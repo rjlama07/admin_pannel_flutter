@@ -26,7 +26,6 @@ class StudioPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AppHeader(title: "Add Studio"),
             const SizedBox(
               height: 20,
             ),
